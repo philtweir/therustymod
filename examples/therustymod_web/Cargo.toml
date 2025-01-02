@@ -1,0 +1,23 @@
+[package]
+name = "therustymod_web"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["dylib", "rlib", "staticlib"]
+
+[dependencies]
+ctor = "0.2.9"
+dsll = "0.1.1"
+intrusive-collections = "0.9.7"
+lazy_static = "1.5.0"
+rocket = "0.5.1"
+tokio = { version = "1.42.0", features = ["rt"] }
+typed-arena = "2.0.2"
+vtable-rs = "0.1.4"
+
+[dependencies.therustymod]
+path = "../therustymod"
+
+[dependencies.therustymod_gen]
+path = "../therustymod/libs/therustymod_gen"
