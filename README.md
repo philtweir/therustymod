@@ -1,7 +1,7 @@
 # The Rusty Mod
 
 Demonstrator toolkit for extending The Dark Mod's idTech4 scripting engine with Rust
-shared libraries.
+shared libraries. Note that this requires [unmerged, demonstrator-level changes](https://github.com/philtweir/darkmod_src/pull/1)
 
 There is no Getting Started yet, as this is still pretty rough code, and
 should be explored only if you are knowing what you are getting into!
