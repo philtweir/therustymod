@@ -7,7 +7,7 @@ mod log;
 use therustymod_gen::{therustymod_lib};
 
 #[therustymod_lib(daemon=true)]
-mod mod_forward_lantern {
+mod mod_web_browser {
     use crate::http::launch;
 
     async fn __run() {
@@ -15,11 +15,11 @@ mod mod_forward_lantern {
         launch().await
     }
 
-    fn init_mod_forward_lantern() {
+    fn init_web_browser() {
         log::add_to_log("init".to_string())
     }
 
-    fn do_stuff_mod_forward_lantern() {
-        log::add_to_log("do stuff".to_string())
+    fn do_log_to_web_browser() {
+        log::add_to_log("doing stuff".to_string())
     }
 }

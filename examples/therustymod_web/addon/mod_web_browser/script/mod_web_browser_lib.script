@@ -1,0 +1,30 @@
+#library "libtherustymod_web.so"
+
+/*****************************************************************************
+The Dark Mod GPL Source Code
+
+This file is part of the The Dark Mod Source Code, originally based
+on the Doom 3 GPL Source Code as published in 2011.
+
+The Dark Mod Source Code is free software: you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version. For details, see LICENSE.TXT.
+
+Project: The Dark Mod (http://www.thedarkmod.com/)
+
+******************************************************************************/
+
+
+/* ---------------------------------------------------------------------------------------------
+ *
+ * This file is added to The Dark Mod's Script Inclusion chain in tdm_main.script
+ *
+ * This is intended for players who wish to install addons with custom scripts that should be available
+ * in all missions. Mission authors must use tdm_custom_scripts instead.
+ * 
+ * --------------------------------------------------------------------------------------------- */
+
+extern mod_web_browser {
+  void init_mod_web_browser();
+}
