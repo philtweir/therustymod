@@ -15,7 +15,7 @@ mod mod_web_browser {
         launch().await
     }
 
-    fn init_web_browser() {
+    fn init_mod_web_browser() {
         log::add_to_log("init".to_string())
     }
 
