@@ -1,0 +1,16 @@
+[package]
+name = "therustymod"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["dylib", "rlib", "staticlib"]
+
+[dependencies]
+lazy_static = "1.5.0"
+syn = { version = "2.0.94", features = ["parsing"] }
+tokio = { version = "1.42.0", features = ["rt", "rt-multi-thread"] }
+vtable-rs = "0.1.4"
+
+[dependencies.therustymod_gen]
+path = "libs/therustymod_gen"

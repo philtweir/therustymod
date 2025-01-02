@@ -1,0 +1,13 @@
+[package]
+name = "therustymod_gen"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+proc-macro2 = "1.0.92"
+lazy_static = "1.5.0"
+quote = "1.0.38"
+syn = { version = "2.0.93", features = ["full", "parsing"] }
