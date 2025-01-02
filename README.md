@@ -82,7 +82,9 @@ amazing immersive experience.
   so **they do need to be explicitly copied to the game folder**
 * Putting a big binary black-box blob on the side has a bunch of obvious issues
   that do not need expanded: security, stability, crypto-miners, etc. -- at the
-  very least, this is AGPL, which includes networked games, so do not 
+  very least, this is AGPL, which includes networked games, so any mod built with
+  this must be open source - _preferably on Github, etc._ so it is always easy to
+  verify the real release and check the code
 * Calls to events defined here are slower than internal event calls, which these
   masquerade as, and likely slower than calling script functions. However, execution
   of the body should be as fast as Rust can optimize it, so you likely want infrequent
