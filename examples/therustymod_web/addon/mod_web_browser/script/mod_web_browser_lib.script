@@ -1,4 +1,4 @@
-#library "libtherustymod_web.so"
+#library "mod_web_browser"
 
 /*****************************************************************************
 The Dark Mod GPL Source Code

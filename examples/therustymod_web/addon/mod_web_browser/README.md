@@ -1,8 +1,11 @@
 # mod_web_browser
 
-ZIP this as a PK4 and put it in the home directory
+**Assumes `x86` 64-bit Linux with GCC-compiled TDM.**
+
+ZIP this as a PK4 and put it in the game directory,
 beside `libtherustymod_web.so` built from the directory
-above, and you should get a web browser on `localhost:9797`
+above and renamed to `mod_web_browser_x86_64.so`, and
+you should get a web browser on `localhost:9797`
 that will start showing "init" when you load a game.
 
 ### Instructions
