@@ -14,3 +14,9 @@ vtable-rs = "0.1.4"
 
 [dependencies.therustymod_gen]
 path = "libs/therustymod_gen"
+
+[dependencies.therustymod_tdm]
+path = "libs/therustymod_tdm"
+
+[build-dependencies]
+bindgen = "0.71.0"

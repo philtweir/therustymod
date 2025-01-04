@@ -1,0 +1,34 @@
+{% extends "components/base.html" %}
+{% block nav %}
+        <ul class="nav__list center">
+          <li class="nav__list-item">
+            <a class="link link--nav" href="/">Home</a>
+            <a class="link link--nav" href="/log">Log</a>
+          </li>
+        </ul>
+{% endblock %}
+
+{% block content %}
+      <!-- About -->
+      <div class="about center">
+        <h1>Webpage for<br/><span class="about__name">{{ module_name }}.</span></h1>
+        <h2 class="about__role">By {{ module_author }}.</h2>
+        <p class="about__desc">
+            {{ module_description }}
+        </p>
+        <div>
+          <a href="{{ module_link }}">
+            <span class="btn btn--outline">More Info</span>
+          </a>
+        </div>
+        <ul class="about__tags">
+          {% for tag in module_tags %}
+          <li class="about__tags-item">{{ tag }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <section id="projects" class="section projects">
+        {{ content }}
+      </section>
+{% endblock %}

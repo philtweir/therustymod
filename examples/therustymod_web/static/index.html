@@ -1,0 +1,96 @@
+{% extends "components/base.html" %}
+{% block nav %}
+        <ul class="nav__list center">
+          <li class="nav__list-item">
+            <a class="link link--nav" href="/log">Log</a>
+          </li>
+          <li class="nav__list-item">
+            <a class="link link--nav" href="#projects">WebMods</a>
+          </li>
+          <li class="nav__list-item">
+            <a class="link link--nav" href="#skills">AllMods</a>
+          </li>
+        </ul>
+{% endblock %}
+
+{% block content %}
+      <!-- About -->
+      <div class="about center">
+        <h1>Web dashboard for<br/><span class="about__name">The Dark Mod.</span></h1>
+        <h2 class="about__role">With Rust &amp; Rocket.</h2>
+        <p class="about__desc">
+          <strong>mod_web_browser</strong> serves as an example of using external Rust libraries from
+          a .pk4-packaged The Dark Module add-on. Moreover, other modders can enhance the dashboard by
+          calling its exposed functions to add their own pages.
+        </p>
+
+        <div class="about__contact center">
+          <a
+            href="https://github.com/philtweir/therustymod"
+            aria-label="github"
+            class="link link--icon"
+          >
+            <i aria-hidden="true" class="fab fa-github"></i>
+          </a>
+
+          <a
+            href="https://forums.thedarkmod.com/"
+            aria-label="linkedin"
+            class="link link--icon"
+          >
+            <i aria-hidden="true" class="fab fa-users"></i>
+          </a>
+        </div>
+
+        <div>
+          <a href="log.html">
+            <span class="btn btn--outline">View Log</span>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Modules with web status pages -->
+      <section id="projects" class="section projects">
+        <h2 class="section__title">WebMods</h2>
+
+        <div class="projects__grid">
+          <div class="project">
+            <h3>mod_grab_log</h3>
+            <p class="project__description">
+              Simply logs when you grab something, based on Smart Objects mod by snatcher.
+            </p>
+            <ul class="project__stack">
+              <li class="project__stack-item">Logging</li>
+              <li class="project__stack-item">Script</li>
+              <li class="project__stack-item">Daemon</li>
+            </ul>
+
+            <a
+              href="https://github.com/philtweir/therustymod/tree/master/examples/therustymod_web/addon/mod_web_browser"
+              aria-label="source code"
+              class="link link--icon"
+            >
+              <i aria-hidden="true" class="fab fa-github"></i>
+            </a>
+            <a
+              href="https://github.com/philtweir/therustymod/tree/master/examples/therustymod_web/addon/mod_web_browser"
+              aria-label="documentation"
+              class="link link--icon"
+            >
+              <i aria-hidden="true" class="fas fa-external-link-alt"></i>
+            </a>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- Skills -->
+      <section class="section skills" id="skills">
+        <h2 class="section__title">All Modules</h2>
+        <ul class="skills__list">
+          <li class="skills__list-item btn btn--plain">mod_web_browser</li>
+          <li class="skills__list-item btn btn--plain">mod_grab_log</li>
+        </ul>
+      </section>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "components/base.html" %}
+{% block nav %}
+        <ul class="nav__list center">
+          <li class="nav__list-item">
+            <a class="link link--nav" href="/">Home</a>
+          </li>
+        </ul>
+{% endblock %}
+
+{% block content %}
+      <!-- About -->
+      <div class="about center">
+        <h1>Web log for<br/><span class="about__name">The Dark Mod.</span></h1>
+      </div>
+
+      <section id="projects" class="section projects">
+        <h2 class="section__title">Log</h2>
+
+        <table class="technical alternate">
+          <thead>
+            <tr>
+              <th>Text</th>
+              <th>Add-on</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for (_, line, module) in log_lines %}
+            <tr>
+              <td>{{ line }}</td>
+              <td>{{ module }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </section>
+{% endblock %}

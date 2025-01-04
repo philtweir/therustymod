@@ -27,4 +27,8 @@ Project: The Dark Mod (http://www.thedarkmod.com/)
 
 extern mod_web_browser {
   void init_mod_web_browser();
+  boolean do_log_to_web_browser(int module_num, string log_line);
+  int register_module(string name, string author, string tags, string link, string description);
+  void register_page(int module_num, string page);
+  void update_status(int module_num, string status_data);
 }

@@ -11,11 +11,16 @@ ctor = "0.2.9"
 dsll = "0.1.1"
 lazy_static = "1.5.0"
 tokio = { version = "1.42.0", features = ["rt"] }
-rocket = "0.5.1"
+rocket = { version = "0.5.1", features = ["json"] }
 vtable-rs = "0.1.4"
+rocket-include-dir = "1.1.0"
+askama = { version = "0.12.1", features = ["markdown", "with-rocket"] }
+include_dir = "0.7.4"
+askama_rocket = "0.12.0"
+serde = { version = "1.0.217", features = ["derive"] }
 
 [dependencies.therustymod]
-path = "../therustymod"
+path = "../.."
 
 [dependencies.therustymod_gen]
-path = "../therustymod/libs/therustymod_gen"
+path = "../../libs/therustymod_gen"
