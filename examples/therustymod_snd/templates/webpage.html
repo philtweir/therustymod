@@ -1,0 +1,9 @@
+<h3>Sounds</h3>
+
+{% for (name, shader, subtitles) in definitions %}
+<h4>{{ name }}</h4>
+<h5>Shader</h5>
+<pre>{{ shader }}</pre>
+<h5>Subtitles</h5>
+<pre>{{ subtitles }}</pre>
+{% endfor %}

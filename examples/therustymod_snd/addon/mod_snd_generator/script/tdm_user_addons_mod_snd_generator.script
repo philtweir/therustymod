@@ -1,0 +1,134 @@
+#define NO_QUESTION_YET ""
+
+/*****************************************************************************
+The Dark Mod GPL Source Code
+
+This file is part of the The Dark Mod Source Code, originally based
+on the Doom 3 GPL Source Code as published in 2011.
+
+The Dark Mod Source Code is free software: you can redistribute it
+and/or modify it under the terms of the GNU General Public License as
+published by the Free Software Foundation, either version 3 of the License,
+or (at your option) any later version. For details, see LICENSE.TXT.
+
+Project: The Dark Mod (http://www.thedarkmod.com/)
+
+******************************************************************************/
+
+
+/* ---------------------------------------------------------------------------------------------
+ *
+ * This file is added to The Dark Mod's Script Inclusion chain in tdm_main.script
+ *
+ * This is intended for players who wish to install addons with custom scripts that should be available
+ * in all missions. Mission authors must use tdm_custom_scripts instead.
+ * 
+ * --------------------------------------------------------------------------------------------- */
+
+/* Shadow definition of the external library */
+extern mod_snd_generator {
+  void init_mod_snd_generator();
+  int ask(string sentence);
+  void tell(string sentence);
+  void generate_sound(string name, string sentence);
+  boolean is_sound_ready(string name);
+  string get_answer_if_ready(int name);
+  int get_sound_shader_buffer_size(string name);
+  bytes get_sound_shader_buffer(string name);
+  void free_sound_shader_buffer(string name);
+
+  int get_sound_shader_subtitle_buffer_size(string name);
+  bytes get_sound_shader_subtitle_buffer(string name);
+  bytes get_webpage();
+}
+
+extern mod_web_browser {
+  int register_module(string name, string author, string tags, string link, string description);
+  void register_page(int module_num, bytes page);
+}
+
+/* Basically, normal from here, treating the extern as a namespace */
+
+void question_loop(int webmodule) {
+  float _handle;
+  string ask;
+  boolean ready = false;
+  boolean thinking = false;
+  string soundName = "mod_snd_generator_bang";
+  string sentence;
+  float requestIndex = -1;
+  sys.print("Starting question loop\n");
+  while(1)
+  {
+    sys.wait(0.01);
+    ask = sys.getcvar("mod_snd_generator_ask");
+
+    if (ask != NO_QUESTION_YET) {
+      if (!thinking) {
+        sys.print("Got a question:\n");
+        sys.print(ask);
+        requestIndex = mod_snd_generator::ask(ask);
+        thinking = true;
+      } else {
+        sentence = mod_snd_generator::get_answer_if_ready(requestIndex);
+        if (sentence != "") {
+          requestIndex = -1;
+          sys.print("Generated mod_snd_generator sound\n");
+
+          mod_snd_generator::generate_sound(soundName, sentence);
+          sys.print("Requested mod_snd_generator sound\n");
+          while(!mod_snd_generator::is_sound_ready(soundName))
+          {
+            sys.wait(0.01);
+          }
+          int subLength = mod_snd_generator::get_sound_shader_subtitle_buffer_size(soundName);
+          bytes subBuffer = mod_snd_generator::get_sound_shader_subtitle_buffer(soundName);
+          sys.setDeclText("subtitles", soundName, subLength, subBuffer);
+
+          sys.print("Set mod_snd_generator subtitle decl\n");
+
+          int length = mod_snd_generator::get_sound_shader_buffer_size(soundName);
+          bytes buffer = mod_snd_generator::get_sound_shader_buffer(soundName);
+          mod_web_browser::register_page(
+            webmodule,
+            mod_snd_generator::get_webpage()
+          );
+          sys.setDeclText("sound", soundName, length, buffer);
+
+          sys.print("Set mod_snd_generator decl\n");
+
+          mod_snd_generator::free_sound_shader_buffer(soundName);
+
+          sys.wait(1);
+          entity guiEnt = $player1;
+          guiEnt.startSoundShader(soundName, SND_CHANNEL_ANY);
+          sys.print("Started mod_snd_generator sound shader\n");
+          sys.setcvar("mod_snd_generator_ask", NO_QUESTION_YET);
+          ready = false;
+          thinking = false;
+        }
+      }
+    }
+  }
+}
+
+
+
+void user_addon_init_mod_snd_generator() {
+  /* Script does some things and then... */
+  mod_snd_generator::init_mod_snd_generator();
+  int webmodule = mod_web_browser::register_module(
+    "mod_snd_generator",
+    "philtweir",
+    "Sound,Rust,Daemon",
+    "https://github.com/philtweir/therustymod/tree/master/examples/therustymod_snd/addon",
+    "Create new sounds."
+  );
+
+
+  sys.waitFrame();
+  sys.setcvar("mod_snd_generator_ask", NO_QUESTION_YET); // initialize
+
+  thread question_loop(webmodule);
+  sys.setcvar("mod_snd_generator_ask", "Who am I?");
+}

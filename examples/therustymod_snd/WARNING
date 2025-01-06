@@ -1,0 +1,39 @@
+# libtherustymod_snd
+
+## Functionality
+
+Shows off two examples of "stretch goals" in very poor Rust and idTech4 Script coding style (sorry).
+
+* Text-to-speech with Piper: this is probably the useful one, where you can create a sound shader on-the-fly from a sentence, and use it like any other.
+* AI conversation with Phi2: slow but it gets there, so you probably would need to precache responses. However, then I haven't got an obvious usecase... Maybe for generating conversations between AIs? This would make more sense as an external server, perhaps launched by the game if local, anyway. Unlike the TTS, there isn't any real benefit to reducing runtime data copying.
+
+In my test example, "Borland the Angry Archery Master" fires up automatically on map load, and if you set a CVar with a question (the addon will reset it after it has spoken). The shader is attached to the player, but could be on another character - there are no shortcuts here, TDM sees and parses the full sample and shader as if they were present on startup, so you could tweak any shader options when it is being generated too. Subtitles are added and were appearing when the AI spoke with the generated answer, but for some reason, have disappeared, so further investigation is needed to find where they went.
+
+## Notes
+
+This example uses a range of code and samples, without being tidied
+up and is _not_ remotely nice or safe Rust.
+
+TL;DR Proves a principle, but needs lots of work to make sense, bad idea to follow this.
+
+Credit to (amongst others):
+* The Dark Mod developers and community
+* https://github.com/thewh1teagle/piper-rs/
+* https://medium.com/@isalapiyarisi/lets-build-a-standalone-chatbot-with-phi-2-and-rust-48c0f714f915 (NB: also AGPL!)
+
+You will need a couple of envs set and to download the relevant Piper voice. The Dolphin Phi2 model
+should download itself on first usage and be cached.
+
+    wget https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx
+    wget https://huggingface.co/rhasspy/piper-voices/blob/main/en/en_GB/northern_english_male/medium/en_GB-northern_english_male-medium.onnx.json
+    PIPER_CONFIG_PATH=$(pwd)/en_GB-northern_english_male-medium.onnx.json PIPER_SID=80 gdb ./thedarkmod.x64.local
+
+As with the other examples, copy `libtherustymod_snd.so` to the game folder, and ZIP the addon in the `addon` directory into a PK4 alongside it.
+
+Do note that the performance difference is HUGE with the `cargo build --release` so use that instead of the default debug build even for testing.
+
+Questions to Phi2, on my i7 (on CPU, as only integrated graphics here) seem to take anything from 20s up to a minute or more for a text answer.
+Piper has created and has shipped a PCM sound sample to the TDM cache in under 0.5s. For what it's worth, I do not see any noticeable penalty on the
+Tutorial when doing this.
+
+**BIG CAVEAT**: I am not sure if it is just this addon, but the Quicksave does not work alongside, so something needs fixed there.
