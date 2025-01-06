@@ -1,0 +1,89 @@
+#ifndef __GRAB_LOG__
+#define __GRAB_LOG__
+
+/* Shadow definition of the external library */
+extern mod_web_browser {
+  void init_mod_web_browser();
+  boolean do_log_to_web_browser(int module_num, string log_line);
+  int register_module(string name, string author, string tags, string link, string description);
+  void register_page(int module_num, bytes page);
+  void update_status(int module_num, string status_data);
+}
+
+void mod_grab_log_init()
+{
+	boolean grabbed_check = false;
+	entity grabbed_entity = $null_entity;
+
+	float web_module_id = mod_web_browser::register_module(
+		"mod_grab_log",
+		"philtweir based on snatcher's work",
+		"Event,Grab",
+		"https://github.com/philtweir/therustymod/",
+		"Logs to web every time the player grabs something."
+	);
+
+	while (1)
+	{
+		sys.waitFrame();
+
+// -----------------------------------------------------------------------------
+
+		// Based on SMART OBJECTS MOD by snatcher
+
+		if ($player1.heldEntity() != $null_entity)
+		{
+			if (!grabbed_check)
+			{
+				grabbed_entity = $player1.heldEntity();
+
+				string grabbed_name = "...";
+				if (grabbed_entity.getKey("grabbed_name") != "")
+					grabbed_name = grabbed_entity.getKey("grabbed_name");
+
+				if (grabbed_entity.isType("idAFEntity_Base"))
+				{
+					if (grabbed_entity.getBoolKey("shoulderable"))
+					{
+						if (grabbed_entity.getHealth() > 0)
+						{
+							grabbed_name = "#str_02410"; // Body
+							if (grabbed_entity.getKey("shouldered_name") != "")
+								grabbed_name = grabbed_entity.getKey("shouldered_name");
+						}
+						else
+						{
+							grabbed_name = "#str_02409"; // Corpse
+							if (grabbed_entity.getKey("shouldered_name_dead") != "")
+								grabbed_name = grabbed_entity.getKey("shouldered_name_dead");
+						}
+					}
+				}
+				else
+				{
+					if (grabbed_entity.getKey("inv_name") != "" && (grabbed_entity.getKey("inv_category") != "" || grabbed_entity.getKey("inv_weapon_name") != ""))
+						grabbed_name = grabbed_entity.getKey("inv_name");
+				}
+
+				if (grabbed_name != "")
+				{
+					// "GrabbedItemName", sys.translate(grabbed_name));
+					mod_web_browser::do_log_to_web_browser(web_module_id, sys.translate(grabbed_name));
+				}
+
+				grabbed_check = true;
+			}
+		}
+		else if (grabbed_check)
+		{
+			if ($player1.getShouldered() == $null_entity) {
+				$player1.setGuiString($player1.getInventoryOverlay(), "GrabbedItemName", "");
+			}
+
+			grabbed_check = false;
+		}
+	}
+
+}
+
+#endif //__GRAB_LOG__
