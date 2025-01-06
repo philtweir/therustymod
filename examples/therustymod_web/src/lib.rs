@@ -34,24 +34,26 @@ mod mod_web_browser {
         let tags = unsafe { CStr::from_ptr(tags) }.to_string_lossy().clone();
         let link = unsafe { CStr::from_ptr(link) }.to_string_lossy().clone();
         let description = unsafe { CStr::from_ptr(description) }.to_string_lossy().clone();
-        print!("Registering {} in mod_web_browser Rust-side\n", name);
-        let result = register_module(name.to_string(), author.to_string(), tags.to_string(), link.to_string(), description.to_string()).try_into().unwrap();
-        print!("1\n");
-        let return_int = TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_int;
-        print!("2\n");
-        unsafe { return_int(1) };
-        print!("3\n");
-        result
+        let module_num = register_module(
+            name.clone().into(),
+            author.into(),
+            tags.into(),
+            link.into(),
+            description.into()
+        ).try_into().unwrap();
+        print!("Registering {} in mod_web_browser Rust-side as {}\n", name, module_num);
+        module_num
     }
 
-    fn register_page(module_num: usize, page: *const c_char) {
-        let module: WebModule = get_module(module_num);
+    fn register_page(module_num: c_int, page: *const c_char) {
+        print!("Setting page for webmodule {}\n", module_num);
+        let module: WebModule = get_module(module_num as usize);
         let page = unsafe { CStr::from_ptr(page) }.to_string_lossy().clone().to_string();
         module.set_page(page);
     }
 
-    fn retrieve_drop(module_num: usize) -> *const c_char {
-        let module: WebModule = get_module(module_num);
+    fn retrieve_drop(module_num: c_int) -> *const c_char {
+        let module: WebModule = get_module(module_num as usize);
         if let Some(drop_data) = module.drop_data {
             CString::new(drop_data.lock().unwrap().clone()).unwrap().into_raw()
         } else {

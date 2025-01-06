@@ -54,7 +54,7 @@ pub struct LogPage {
 }
 
 #[derive(Template)]
-#[template(path = "module.html")]
+#[template(path = "module.html", escape = "none")]
 pub struct ModulePage {
     pub module_name: String,
     pub module_description: String,
