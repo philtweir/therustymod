@@ -18,13 +18,14 @@ struct TRMDefinition {
 lazy_static! {
     static ref TRM_DEFINITION: Mutex<Option<TRMDefinition>> = Mutex::new(None);
     static ref return_wrappers: HashMap<&'static str, (&'static str, &'static str)> = HashMap::from([
-        ("bool", ("(TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_int)(if ", " { 1 } else { 0 })")),
+        ("bool", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().returnCallbacks.returnInt.unwrap())(if ", " { 1 } else { 0 })")),
         // TODO: check safety
-        ("*const c_char", ("(TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_string)(", ")")),
-        ("c_float", ("(TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_float)(", ")")),
-        ("c_int", ("(TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_int)(", ")")),
-        ("idVec3", ("(TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_vector)(", ")")),
-        ("idEntity", ("(TRM_SYSTEM.lock().unwrap().return_functions.as_ref().unwrap().return_entity((", ")")),
+        ("*const c_char", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().returnCallbacks.returnString.unwrap())(", ")")),
+        ("*mut byte", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().returnCallbacks.returnBytes.unwrap())(", ")")),
+        ("c_float", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().returnCallbacks.returnFloat.unwrap())(", ")")),
+        ("c_int", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().returnCallbacks.returnInt.unwrap())(", ")")),
+        ("idVec3", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().returnCallbacks.returnVector.unwrap())(", ")")),
+        // ("idEntity", ("(TRM_SYSTEM.lock().unwrap().abi.as_ref().unwrap().return_entity)(", ")")),
     ]);
 }
 
@@ -103,13 +104,15 @@ pub fn therustymod_lib(args: TokenStream, input: TokenStream) -> TokenStream {
 
     assert!(expect_daemon == run_daemon.is_some(), "TheRustyMod must have a __run function iff. it is to run in daemon-mode");
 
-    let (daemon, daemon_ref) = match run_daemon {
+    let (daemon, daemon_ref, daemon_use) = match run_daemon {
         Some(run_daemon) => (quote! {
             pub #run_daemon
         }, quote! {
             Some(Box::new(move || Box::pin(__run())))
+        }, quote! {
+            use super::__run;
         }),
-        _ => (quote! { }, quote! { None })
+        _ => (quote! { }, quote! { None }, quote! { })
     };
 
     let funcs = funcs.filter(|fdef| !fdef.sig.ident.to_string().starts_with("_"));
@@ -149,7 +152,6 @@ pub fn therustymod_lib(args: TokenStream, input: TokenStream) -> TokenStream {
                         return_wrappers.get(typ.as_str()).expect(format!("Could not find type: {}", typ).as_str())
                     },
                     syn::Type::Ptr(ptr) => {
-                        assert!(ptr.const_token.is_some(), "Must have const in pointer return for *const c_char");
                         let typ = ptr.elem.as_ref();
                         match typ {
                             syn::Type::Path(path) => {
@@ -158,15 +160,27 @@ pub fn therustymod_lib(args: TokenStream, input: TokenStream) -> TokenStream {
                                 assert!(path.leading_colon.is_none(), "Cannot have :: in return type");
                                 assert!(path.segments.len() == 1, "Must have one path segment in return type");
                                 let typ = path.segments[0].ident.to_string();
-                                assert!(typ == "c_char", "Can only have c_char as a *const return type");
-                                return_wrappers.get("*const c_char").unwrap()
+                                let wrapper = match typ.as_str() {
+                                    "c_char" => {
+                                        assert!(ptr.const_token.is_some(), "Must have const in pointer return for *const c_char");
+                                        "*const c_char"
+                                    },
+                                    "byte" => {
+                                        assert!(ptr.const_token.is_none(), "Must NOT have const in pointer return for *mut byte");
+                                        "*mut byte"
+                                    },
+                                    _ => panic!("Can only have c_char or byte as a pointer return type")
+                                };
+                                return_wrappers.get(wrapper).unwrap()
                             },
                             _ => panic!("Unknown *const return type")
                         }
                     },
                     _ => panic!("Unknown return type")
                 };
-                let return_wrapper: syn::Expr = parse_str(format!("{}result{}", return_wrapper.0, return_wrapper.1).as_str()).expect(format!("Could not construct return function: {}result{}", return_wrapper.0, return_wrapper.1).as_str());
+                let return_wrapper: syn::Expr = parse_str(
+                    format!("{}result{}", return_wrapper.0, return_wrapper.1).as_str()
+                ).expect(format!("Could not construct return function: {}result{}", return_wrapper.0, return_wrapper.1).as_str());
                 quote! {
                     #[no_mangle]
                     extern "C" #sig {
@@ -222,7 +236,7 @@ pub fn therustymod_lib(args: TokenStream, input: TokenStream) -> TokenStream {
             use std::sync::{Arc, Mutex};
             use lazy_static::lazy_static; // Allow separate imports
             use therustymod::runtime::{TRM_SYSTEM, TRMSystem, TRMModuleData};
-            use super::__run;
+            #daemon_use
             lazy_static! {
                 static ref TRM_MODULE_DATA: Arc<Mutex<TRMModuleData>> = Arc::new(Mutex::new(TRMModuleData {
                     module_name: CString::new(#module_name).unwrap(),

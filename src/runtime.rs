@@ -7,8 +7,7 @@ use std::ffi::CString;
 
 pub use vtable_rs::{vtable, VPtr};
 
-use therustymod_gen::{therustymod_module_name};
-use therustymod_tdm::Script_Thread::{idVec3, idEntity};
+use therustymod_tdm::LibraryABI::LibraryABI;
 
 const ABI_VERSION: u32 = 1;
 type Initializer = Box<dyn Fn() -> std::pin::Pin<Box<dyn core::future::Future<Output = ()> + Send>> + Send + Sync>;
@@ -19,18 +18,10 @@ pub struct TRMModuleData {
     pub run: Option<Initializer>
 }
 
-pub struct ReturnFunctions {
-    pub return_string: unsafe extern "C" fn(*const ::std::os::raw::c_char),
-    pub return_float: unsafe extern "C" fn(f32),
-    pub return_int: unsafe extern "C" fn (::std::os::raw::c_int),
-    pub return_vector: unsafe extern "C" fn (*const idVec3),
-    // pub return_entity: unsafe extern "C" fn(*mut idEntity)
-}
-
 pub struct TRMSystem {
     rt: Option<Arc<Runtime>>,
     module_data: Option<Arc<Mutex<TRMModuleData>>>,
-    pub return_functions: Option<ReturnFunctions>
+    pub abi: Option<LibraryABI>
 }
 
 fn initialize(module_data: Arc<Mutex<TRMModuleData>>) -> Future {
@@ -82,7 +73,7 @@ impl TRMSystem {
 
 lazy_static! {
     pub static ref TRM_SYSTEM: Mutex<TRMSystem> = {
-        Mutex::new(TRMSystem { rt: None, module_data: None, return_functions: None })
+        Mutex::new(TRMSystem { rt: None, module_data: None, abi: None })
     };
 }
 
@@ -105,21 +96,10 @@ impl TRMSysIdClassVmt for TRMSysIdClass {
 }
 
 #[no_mangle]
-extern "C" fn trm__initialize(
-    return_string: unsafe extern "C" fn(*const ::std::os::raw::c_char),
-    return_float: unsafe extern "C" fn(f32),
-    return_int: unsafe extern "C" fn (::std::os::raw::c_int),
-    return_vector: unsafe extern "C" fn (*const idVec3),
-    // return_entity: unsafe extern "C" fn(*mut idEntity)
-) -> bool {
+extern "C" fn trm__initialize(abi: LibraryABI) -> bool {
     let mut trm_system = TRM_SYSTEM.lock().unwrap();
-    trm_system.return_functions = Some(ReturnFunctions {
-        return_string,
-        return_float,
-        return_int,
-        return_vector,
-        // return_entity
-    });
+    trm_system.abi = Some(abi);
+    unsafe { (abi.confirmLoad.unwrap())() };
     trm_system.run();
     true
 }

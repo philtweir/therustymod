@@ -26,3 +26,11 @@ public:
 	float			y;
 	float			z;
 };
+
+class idVec4 {
+public:	
+	float			x;
+	float			y;
+	float			z;
+	float			w;
+};
